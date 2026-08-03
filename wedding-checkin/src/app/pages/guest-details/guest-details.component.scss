@@ -1,0 +1,38 @@
+.details-card {
+  display: grid;
+  gap: 1rem;
+}
+
+.details-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.grid {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.slot {
+  padding: 1rem;
+}
+
+.slot h2 {
+  margin-top: 0;
+  margin-bottom: 0.45rem;
+  color: var(--accent-strong);
+  font-size: 1rem;
+}
+
+.slot p {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+@media (min-width: 760px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

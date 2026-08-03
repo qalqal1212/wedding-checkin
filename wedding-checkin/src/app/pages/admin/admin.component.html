@@ -1,0 +1,84 @@
+<div class="page-wrap">
+  <header class="top-nav">
+    <div class="brand">Wedding Check-In Admin</div>
+    <nav class="nav-links">
+      <a class="link-chip" routerLink="/">Guest Search</a>
+    </nav>
+  </header>
+
+  <section class="hero-card">
+    <h1 class="section-title">Guest Check-In Status</h1>
+    <p class="section-subtitle">Search by name and monitor who has checked in at the reception.</p>
+
+    <form class="form-row" (ngSubmit)="loadGuests()">
+      <input
+        type="text"
+        [formControl]="searchControl"
+        placeholder="Search guest name"
+        aria-label="Search guest"
+      />
+      <button class="btn-primary" type="submit" [disabled]="loading">
+        {{ loading ? 'Loading...' : 'Search' }}
+      </button>
+    </form>
+
+    <div class="stats">
+      <article class="card stat-card">
+        <h2>Total</h2>
+        <p>{{ guests.length }}</p>
+      </article>
+      <article class="card stat-card">
+        <h2>Checked In</h2>
+        <p>{{ checkedInCount }}</p>
+      </article>
+      <article class="card stat-card">
+        <h2>Pending</h2>
+        <p>{{ pendingCount }}</p>
+      </article>
+    </div>
+
+    @if (errorMessage) {
+      <p class="error">{{ errorMessage }}</p>
+    }
+  </section>
+
+  <section class="card table-card">
+    <div class="table-head">
+      <h2>Guest List</h2>
+      <button class="btn-secondary" type="button" (click)="loadGuests()" [disabled]="loading">Refresh</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Table</th>
+            <th>Seat</th>
+            <th>Status</th>
+            <th>Checked In At</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (guest of guests; track trackByGuest($index, guest)) {
+            <tr>
+              <td>{{ guest.full_name }}</td>
+              <td>{{ guest.table_name || '-' }}</td>
+              <td>{{ guest.seat_label || '-' }}</td>
+              <td>
+                <span class="status-chip" [class.checked]="guest.checked_in" [class.pending]="!guest.checked_in">
+                  {{ guest.checked_in ? 'Checked In' : 'Pending' }}
+                </span>
+              </td>
+              <td>{{ guest.checked_in_at ? (guest.checked_in_at | date: 'short') : '-' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      @if (!loading && guests.length === 0) {
+        <p class="empty-note">No guests found for the current search.</p>
+      }
+    </div>
+  </section>
+</div>

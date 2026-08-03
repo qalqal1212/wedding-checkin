@@ -1,0 +1,72 @@
+<div class="page-wrap">
+  <header class="top-nav">
+    <div class="brand">Wedding Check-In</div>
+    <nav class="nav-links">
+      <a class="link-chip" routerLink="/admin">Admin Dashboard</a>
+    </nav>
+  </header>
+
+  <section class="hero-card">
+    <h1 class="section-title">Find your name and check in</h1>
+    <p class="section-subtitle">
+      Search your name from the invitation list, confirm check-in, and view your seating details instantly.
+    </p>
+
+    <form class="form-row" (ngSubmit)="searchGuests()">
+      <input
+        type="text"
+        [formControl]="nameControl"
+        placeholder="Type guest name"
+        aria-label="Guest name"
+      />
+      <button class="btn-primary" type="submit" [disabled]="loading">
+        {{ loading ? 'Searching...' : 'Search' }}
+      </button>
+    </form>
+
+    @if (errorMessage) {
+      <p class="error">{{ errorMessage }}</p>
+    }
+  </section>
+
+  @if (searched) {
+    <section class="result-list">
+      @if (!loading && guests.length === 0) {
+        <article class="card empty-state">
+          <h2>No guest found</h2>
+          <p>Try another spelling or contact the event administrator.</p>
+        </article>
+      }
+
+      @for (guest of guests; track trackByGuest($index, guest)) {
+        <article class="card guest-card">
+          <div class="guest-header">
+            <h2>{{ guest.full_name }}</h2>
+            <span class="status-chip" [class.checked]="guest.checked_in" [class.pending]="!guest.checked_in">
+              {{ guest.checked_in ? 'Checked In' : 'Pending' }}
+            </span>
+          </div>
+
+          <div class="guest-meta">
+            <p><strong>Table:</strong> {{ guest.table_name || 'Will be assigned at venue' }}</p>
+            <p><strong>Seat:</strong> {{ guest.seat_label || 'TBD' }}</p>
+            <p><strong>Party Size:</strong> {{ guest.party_size || 1 }}</p>
+          </div>
+
+          <button
+            class="btn-primary"
+            type="button"
+            [disabled]="checkingInGuestId === guest.id"
+            (click)="onGuestAction(guest)"
+          >
+            @if (checkingInGuestId === guest.id) {
+              Processing...
+            } @else {
+              {{ guest.checked_in ? 'View Details' : 'Check In Now' }}
+            }
+          </button>
+        </article>
+      }
+    </section>
+  }
+</div>

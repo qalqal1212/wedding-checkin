@@ -1,0 +1,62 @@
+<div class="page-wrap">
+  <header class="top-nav">
+    <div class="brand">Wedding Check-In</div>
+    <nav class="nav-links">
+      <a class="link-chip" routerLink="/">Guest Search</a>
+      <a class="link-chip" routerLink="/admin">Admin Dashboard</a>
+    </nav>
+  </header>
+
+  @if (loading) {
+    <section class="hero-card">
+      <h1 class="section-title">Loading guest details...</h1>
+    </section>
+  } @else if (errorMessage) {
+    <section class="hero-card">
+      <h1 class="section-title">Unable to show details</h1>
+      <p class="error">{{ errorMessage }}</p>
+      <button class="btn-secondary" type="button" (click)="loadGuest()">Try Again</button>
+    </section>
+  } @else if (guest) {
+    <section class="hero-card details-card">
+      <div class="details-title-row">
+        <h1 class="section-title">{{ guest.full_name }}</h1>
+        <span class="status-chip" [class.checked]="guest.checked_in" [class.pending]="!guest.checked_in">
+          {{ guest.checked_in ? 'Checked In' : 'Pending' }}
+        </span>
+      </div>
+
+      <div class="grid">
+        <article class="card slot">
+          <h2>Table</h2>
+          <p>{{ guest.table_name || 'Will be assigned at venue' }}</p>
+        </article>
+
+        <article class="card slot">
+          <h2>Seat</h2>
+          <p>{{ guest.seat_label || 'TBD' }}</p>
+        </article>
+
+        <article class="card slot">
+          <h2>Party Size</h2>
+          <p>{{ guest.party_size || 1 }}</p>
+        </article>
+
+        <article class="card slot">
+          <h2>Check-In Time</h2>
+          <p>{{ guest.checked_in_at ? (guest.checked_in_at | date: 'medium') : 'Not yet checked in' }}</p>
+        </article>
+      </div>
+
+      @if (!guest.checked_in) {
+        <button class="btn-primary" type="button" [disabled]="checkingIn" (click)="checkInNow()">
+          {{ checkingIn ? 'Checking in...' : 'Confirm Check-In' }}
+        </button>
+      }
+
+      @if (errorMessage) {
+        <p class="error">{{ errorMessage }}</p>
+      }
+    </section>
+  }
+</div>
