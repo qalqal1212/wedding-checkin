@@ -1,0 +1,17 @@
+.login-card {
+  max-width: 720px;
+  margin: 1.5rem auto 0;
+}
+
+.login-form {
+  margin-top: 1rem;
+  display: grid;
+  gap: 0.7rem;
+}
+
+@media (min-width: 720px) {
+  .login-form {
+    grid-template-columns: 1fr 1fr auto;
+    align-items: center;
+  }
+}

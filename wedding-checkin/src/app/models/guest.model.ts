@@ -6,4 +6,6 @@ export interface Guest {
   seat_number: string | null;
   original_text: string | null;
   table_name: string | null;
+  checked_in: boolean;
+  checked_in_at: string | null;
 }

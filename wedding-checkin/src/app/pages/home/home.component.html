@@ -6,53 +6,95 @@
     </nav>
   </header>
 
-  <section class="hero-card">
-    <h1 class="section-title">Find your name and check in</h1>
-    <p class="section-subtitle">
-      Search your name from the invitation list, confirm check-in, and view your seating details instantly.
+  <section class="hero-card guest-search">
+    <h1 class="section-title guest-search__title">Find your name to check in</h1>
+    <p class="section-subtitle guest-search__subtitle">
+      QR opens this page only. Search your name here, select your record, then confirm check-in.
     </p>
 
-    <form class="form-row" (ngSubmit)="searchGuests()">
-      <input
-        type="text"
-        [formControl]="nameControl"
-        placeholder="Type guest name"
-        aria-label="Guest name"
-      />
-      <button class="btn-primary" type="submit" [disabled]="loading">
-        {{ loading ? 'Searching...' : 'Search' }}
-      </button>
+    <form class="guest-search__form" (submit)="$event.preventDefault(); searchGuests()">
+      <label class="guest-search__label" for="guest-search-input">Guest Search</label>
+      <div class="guest-search__row">
+        <input
+          id="guest-search-input"
+          class="guest-search__input"
+          type="text"
+          [formControl]="nameControl"
+          placeholder="Enter your name, table, or seat code"
+          aria-label="Search your guest name"
+        />
+        <button class="btn-primary guest-search__button" type="submit" [disabled]="loading">
+          {{ loading ? 'Searching...' : 'Search Guest' }}
+        </button>
+      </div>
     </form>
 
+    @if (searched) {
+      <div class="guest-search__popup" role="listbox" aria-label="Matching guests">
+        @if (!loading && guests.length === 0) {
+          <article class="guest-search__empty">
+            <h2 class="guest-search__empty-title">Guest not found</h2>
+            <p class="guest-search__empty-text">Check the spelling or ask staff to help.</p>
+          </article>
+        }
+
+        @for (guest of guests; track trackByGuest($index, guest)) {
+          <button
+            class="guest-search__result"
+            type="button"
+            (click)="selectGuest(guest)"
+            [class.guest-search__result--active]="selectedGuest?.id === guest.id"
+          >
+            <span class="guest-search__result-name">{{ guest.guest_name }}</span>
+            <span class="guest-search__result-meta">{{ guest.table_name || 'Table pending' }}</span>
+          </button>
+        }
+      </div>
+    }
+
     @if (errorMessage) {
-      <p class="error">{{ errorMessage }}</p>
+      <p class="error guest-search__error">{{ errorMessage }}</p>
     }
   </section>
 
-  @if (searched) {
-    <section class="result-list">
-      @if (!loading && guests.length === 0) {
-        <article class="card empty-state">
-          <h2>No guest found</h2>
-          <p>Try another spelling or contact the event administrator.</p>
+  @if (selectedGuest) {
+    <section class="card guest-checkin" [class.guest-checkin--done]="selectedGuest.checked_in">
+      <header class="guest-checkin__header">
+        <h2 class="guest-checkin__name">{{ selectedGuest.guest_name }}</h2>
+        <span class="status-chip" [class.checked]="selectedGuest.checked_in" [class.pending]="!selectedGuest.checked_in">
+          {{ selectedGuest.checked_in ? 'Checked In' : 'Not Checked In' }}
+        </span>
+      </header>
+
+      <div class="guest-checkin__grid">
+        <article class="guest-checkin__item">
+          <p class="guest-checkin__item-label">Table</p>
+          <p class="guest-checkin__item-value">{{ selectedGuest.table_name || 'Will be assigned at venue' }}</p>
         </article>
+        <article class="guest-checkin__item">
+          <p class="guest-checkin__item-label">Table Code</p>
+          <p class="guest-checkin__item-value">{{ selectedGuest.table_code || '-' }}</p>
+        </article>
+        <article class="guest-checkin__item">
+          <p class="guest-checkin__item-label">Seat Code</p>
+          <p class="guest-checkin__item-value">{{ selectedGuest.seat_code || '-' }}</p>
+        </article>
+        <article class="guest-checkin__item">
+          <p class="guest-checkin__item-label">Seat Number</p>
+          <p class="guest-checkin__item-value">{{ selectedGuest.seat_number || '-' }}</p>
+        </article>
+      </div>
+
+      @if (selectedGuest.checked_in) {
+        <p class="guest-checkin__success">You are already checked in. Enjoy the event.</p>
+      } @else {
+        <button class="btn-primary guest-checkin__confirm" type="button" (click)="confirmCheckIn()" [disabled]="checkingIn">
+          {{ checkingIn ? 'Confirming...' : 'Confirm Check-In' }}
+        </button>
       }
 
-      @for (guest of guests; track trackByGuest($index, guest)) {
-        <article class="card guest-card">
-          <div class="guest-header">
-            <h2>{{ guest.guest_name }}</h2>
-          </div>
-
-          <div class="guest-meta">
-            <p><strong>Table:</strong> {{ guest.table_name || 'Will be assigned at venue' }}</p>
-            <p><strong>Table Code:</strong> {{ guest.table_code || '-' }}</p>
-            <p><strong>Seat Code:</strong> {{ guest.seat_code || '-' }}</p>
-            <p><strong>Seat Number:</strong> {{ guest.seat_number || '-' }}</p>
-          </div>
-
-          <button class="btn-primary" type="button" (click)="onGuestAction(guest)">View Details</button>
-        </article>
+      @if (checkInSuccess) {
+        <p class="guest-checkin__success">Check-in successful. Thank you and have a great time.</p>
       }
     </section>
   }

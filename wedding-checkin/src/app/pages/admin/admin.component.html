@@ -3,37 +3,46 @@
     <div class="brand">Wedding Check-In Admin</div>
     <nav class="nav-links">
       <a class="link-chip" routerLink="/">Guest Search</a>
+      <button class="link-chip link-btn" type="button" (click)="logoutAdmin()">Logout</button>
     </nav>
   </header>
 
-  <section class="hero-card">
+  <section class="hero-card admin-search">
     <h1 class="section-title">Guest Check-In Status</h1>
-    <p class="section-subtitle">Search by name and monitor who has checked in at the reception.</p>
+    <p class="section-subtitle">Manual search by guest name, table name, table code, or seat code.</p>
 
-    <form class="form-row" (ngSubmit)="loadGuests()">
-      <input
-        type="text"
-        [formControl]="searchControl"
-        placeholder="Search guest name"
-        aria-label="Search guest"
-      />
-      <button class="btn-primary" type="submit" [disabled]="loading">
-        {{ loading ? 'Loading...' : 'Search' }}
-      </button>
+    <form class="admin-search__form" (submit)="$event.preventDefault(); loadGuests(true)">
+      <label class="admin-search__label" for="admin-search-input">Search Guest</label>
+      <div class="admin-search__row">
+        <input
+          id="admin-search-input"
+          class="admin-search__input"
+          type="text"
+          [formControl]="searchControl"
+          placeholder="Search name, table, or seat"
+          aria-label="Search guest"
+        />
+        <button class="btn-primary" type="submit" [disabled]="loading">
+          {{ loading ? 'Loading...' : 'Search' }}
+        </button>
+        <button class="btn-secondary" type="button" (click)="clearSearch()" [disabled]="loading || !hasSearchTerm">
+          Clear
+        </button>
+      </div>
     </form>
 
     <div class="stats">
       <article class="card stat-card">
         <h2>Total</h2>
-        <p>{{ guests.length }}</p>
+        <p>{{ totalGuests }}</p>
       </article>
       <article class="card stat-card">
-        <h2>With Table</h2>
-        <p>{{ withTableCount }}</p>
+        <h2>Checked In</h2>
+        <p>{{ checkedInCount }}</p>
       </article>
       <article class="card stat-card">
-        <h2>With Seat Number</h2>
-        <p>{{ withSeatNumberCount }}</p>
+        <h2>Pending</h2>
+        <p>{{ pendingCount }}</p>
       </article>
     </div>
 
@@ -94,7 +103,7 @@
 
   <section class="card table-card">
     <div class="table-head">
-      <h2>Guest List</h2>
+      <h2>{{ hasSearchTerm ? 'Search Results' : 'Guest List' }}</h2>
       <button class="btn-secondary" type="button" (click)="loadGuests()" [disabled]="loading">Refresh</button>
     </div>
 
@@ -107,6 +116,8 @@
             <th>Table Code</th>
             <th>Seat Code</th>
             <th>Seat Number</th>
+            <th>Status</th>
+            <th>Checked In At</th>
             <th>Original Text</th>
             <th>Actions</th>
           </tr>
@@ -119,10 +130,24 @@
               <td>{{ guest.table_code || '-' }}</td>
               <td>{{ guest.seat_code || '-' }}</td>
               <td>{{ guest.seat_number || '-' }}</td>
+              <td>
+                <span class="status-chip" [class.checked]="guest.checked_in" [class.pending]="!guest.checked_in">
+                  {{ guest.checked_in ? 'Checked In' : 'Pending' }}
+                </span>
+              </td>
+              <td>{{ guest.checked_in_at ? (guest.checked_in_at | date: 'short') : '-' }}</td>
               <td>{{ guest.original_text || '-' }}</td>
               <td>
                 <div class="row-actions">
                   <button class="btn-secondary" type="button" (click)="startEditGuest(guest)">Edit</button>
+                  <button
+                    class="btn-secondary"
+                    type="button"
+                    [disabled]="togglingGuestId === guest.id"
+                    (click)="toggleCheckIn(guest)"
+                  >
+                    {{ guest.checked_in ? 'Undo' : 'Check In' }}
+                  </button>
                   <button
                     class="btn-danger"
                     type="button"
@@ -139,8 +164,25 @@
       </table>
 
       @if (!loading && guests.length === 0) {
-        <p class="empty-note">No guests found for the current search.</p>
+        <p class="empty-note">
+          {{ hasSearchTerm ? 'No guests found for this search.' : 'No guests available yet.' }}
+        </p>
       }
+
+      <div class="pagination-row">
+        <button class="btn-secondary" type="button" (click)="previousPage()" [disabled]="loading || currentPage <= 1">
+          Previous
+        </button>
+        <p>Page {{ currentPage }} of {{ totalPages }}</p>
+        <button
+          class="btn-secondary"
+          type="button"
+          (click)="nextPage()"
+          [disabled]="loading || currentPage >= totalPages"
+        >
+          Next
+        </button>
+      </div>
     </div>
   </section>
 </div>

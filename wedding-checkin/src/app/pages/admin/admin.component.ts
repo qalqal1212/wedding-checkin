@@ -1,8 +1,10 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { RouterLink } from '@angular/router';
 import { Guest } from '../../models/guest.model';
+import { AdminAuthService } from '../../services/admin-auth.service';
 import { GuestService } from '../../services/guest.service';
 
 @Component({
@@ -24,36 +26,108 @@ export class AdminComponent {
   });
 
   guests: Guest[] = [];
+  totalGuests = 0;
+  checkedInCount = 0;
+  pendingCount = 0;
+  readonly pageSize = 20;
+  currentPage = 1;
+
   loading = false;
   saving = false;
   deletingGuestId: string | null = null;
+  togglingGuestId: string | null = null;
   editingGuestId: string | null = null;
   errorMessage = '';
 
-  constructor(private readonly guestService: GuestService) {
-    void this.loadGuests();
+  constructor(
+    private readonly guestService: GuestService,
+    private readonly adminAuthService: AdminAuthService,
+    private readonly router: Router
+  ) {
+    if (typeof window !== 'undefined') {
+      void this.loadGuests();
+    }
   }
 
-  get withTableCount(): number {
-    return this.guests.filter((guest) => !!guest.table_name).length;
+  get totalPages(): number {
+    const pages = Math.ceil(this.totalGuests / this.pageSize);
+    return pages > 0 ? pages : 1;
   }
 
-  get withSeatNumberCount(): number {
-    return this.guests.filter((guest) => !!guest.seat_number).length;
-  }
+  async loadGuests(resetPage = false): Promise<void> {
+    if (resetPage) {
+      this.currentPage = 1;
+    }
 
-  async loadGuests(): Promise<void> {
     this.loading = true;
     this.errorMessage = '';
 
     try {
-      this.guests = await this.guestService.getGuestsForAdmin(this.searchControl.value);
+      const result = await this.guestService.getGuestsForAdmin(
+        this.searchControl.value,
+        this.currentPage,
+        this.pageSize
+      );
+      this.guests = result.guests;
+      this.totalGuests = result.total;
+      this.checkedInCount = result.checkedInCount;
+      this.pendingCount = result.pendingCount;
+
+      if (this.currentPage > this.totalPages) {
+        this.currentPage = this.totalPages;
+        return await this.loadGuests();
+      }
     } catch (error) {
       this.errorMessage = this.getErrorMessage(error, 'Unable to load guest status right now.');
       this.guests = [];
+      this.totalGuests = 0;
+      this.checkedInCount = 0;
+      this.pendingCount = 0;
     } finally {
       this.loading = false;
     }
+  }
+
+  async clearSearch(): Promise<void> {
+    this.searchControl.setValue('');
+    await this.loadGuests(true);
+  }
+
+  async nextPage(): Promise<void> {
+    if (this.currentPage >= this.totalPages) {
+      return;
+    }
+
+    this.currentPage += 1;
+    await this.loadGuests();
+  }
+
+  async previousPage(): Promise<void> {
+    if (this.currentPage <= 1) {
+      return;
+    }
+
+    this.currentPage -= 1;
+    await this.loadGuests();
+  }
+
+  async toggleCheckIn(guest: Guest): Promise<void> {
+    this.errorMessage = '';
+    this.togglingGuestId = guest.id;
+
+    try {
+      await this.guestService.setGuestCheckInStatus(guest.id, !guest.checked_in);
+      await this.loadGuests();
+    } catch (error) {
+      this.errorMessage = this.getErrorMessage(error, 'Unable to update check-in status right now.');
+    } finally {
+      this.togglingGuestId = null;
+    }
+  }
+
+  async logoutAdmin(): Promise<void> {
+    await this.adminAuthService.logout();
+    await this.router.navigate(['/admin/login']);
   }
 
   startCreateGuest(): void {
@@ -101,6 +175,7 @@ export class AdminComponent {
       seat_number: this.toNullable(this.guestForm.controls.seat_number.value),
       original_text: this.toNullable(this.guestForm.controls.original_text.value)
     };
+    const wasEditing = !!this.editingGuestId;
 
     try {
       if (this.editingGuestId) {
@@ -110,7 +185,7 @@ export class AdminComponent {
       }
 
       this.startCreateGuest();
-      await this.loadGuests();
+      await this.loadGuests(!wasEditing);
     } catch (error) {
       this.errorMessage = this.getErrorMessage(error, 'Unable to save guest right now.');
     } finally {
@@ -143,6 +218,10 @@ export class AdminComponent {
 
   get isEditing(): boolean {
     return this.editingGuestId !== null;
+  }
+
+  get hasSearchTerm(): boolean {
+    return this.searchControl.value.trim().length > 0;
   }
 
   private toNullable(value: string): string | null {

@@ -1,0 +1,35 @@
+<div class="page-wrap">
+  <header class="top-nav">
+    <div class="brand">Wedding Admin Access</div>
+    <nav class="nav-links">
+      <a class="link-chip" routerLink="/">Guest Search</a>
+    </nav>
+  </header>
+
+  <section class="hero-card login-card">
+    <h1 class="section-title">Admin Login</h1>
+    <p class="section-subtitle">Sign in with your admin email and password to access guest management.</p>
+
+    <form class="login-form" [formGroup]="loginForm" (ngSubmit)="login()">
+      <input
+        type="email"
+        formControlName="email"
+        placeholder="Admin email"
+        aria-label="Admin email"
+      />
+      <input
+        type="password"
+        formControlName="password"
+        placeholder="Password"
+        aria-label="Password"
+      />
+      <button class="btn-primary" type="submit" [disabled]="submitting">
+        {{ submitting ? 'Checking...' : 'Enter Admin' }}
+      </button>
+    </form>
+
+    @if (errorMessage) {
+      <p class="error">{{ errorMessage }}</p>
+    }
+  </section>
+</div>
