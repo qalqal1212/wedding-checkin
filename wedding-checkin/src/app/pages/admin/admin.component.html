@@ -85,11 +85,6 @@
         <input type="text" formControlName="seat_number" placeholder="e.g. 12" />
       </label>
 
-      <label>
-        Original Text
-        <input type="text" formControlName="original_text" placeholder="Optional source text" />
-      </label>
-
       <div class="crud-actions">
         <button class="btn-primary" type="submit" [disabled]="saving">
           {{ saving ? 'Saving...' : (isEditing ? 'Update Guest' : 'Create Guest') }}
@@ -118,7 +113,6 @@
             <th>Seat Number</th>
             <th>Status</th>
             <th>Checked In At</th>
-            <th>Original Text</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -136,7 +130,6 @@
                 </span>
               </td>
               <td>{{ guest.checked_in_at ? (guest.checked_in_at | date: 'short') : '-' }}</td>
-              <td>{{ guest.original_text || '-' }}</td>
               <td>
                 <div class="row-actions">
                   <button class="btn-secondary" type="button" (click)="startEditGuest(guest)">Edit</button>
