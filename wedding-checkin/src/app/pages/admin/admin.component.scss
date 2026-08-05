@@ -27,6 +27,29 @@
   padding: 1rem;
 }
 
+.crud-card {
+  margin-top: 1rem;
+  padding: 1rem;
+}
+
+.crud-form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.crud-form label {
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.crud-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
 .table-head {
   display: flex;
   justify-content: space-between;
@@ -54,6 +77,7 @@ td {
   text-align: left;
   border-bottom: 1px solid rgba(31, 31, 38, 0.12);
   padding: 0.7rem 0.35rem;
+  vertical-align: top;
 }
 
 th {
@@ -65,6 +89,26 @@ th {
 .empty-note {
   margin: 0.7rem 0 0;
   color: var(--muted);
+}
+
+.row-actions {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.row-actions button {
+  font-size: 0.82rem;
+  padding: 0.45rem 0.6rem;
+}
+
+.btn-danger {
+  background: #8e2a2a;
+  color: #fff;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #6f2020;
 }
 
 @media (max-width: 760px) {

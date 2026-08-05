@@ -1,9 +1,9 @@
 export interface Guest {
   id: string;
-  full_name: string;
+  guest_name: string;
+  table_code: string | null;
+  seat_code: string | null;
+  seat_number: string | null;
+  original_text: string | null;
   table_name: string | null;
-  seat_label: string | null;
-  party_size: number | null;
-  checked_in: boolean;
-  checked_in_at: string | null;
 }

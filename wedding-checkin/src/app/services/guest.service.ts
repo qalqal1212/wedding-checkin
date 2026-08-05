@@ -10,6 +10,83 @@ export class GuestService {
   private readonly tableName = 'guests';
   private client: SupabaseClient | null = null;
 
+  async createGuest(input: {
+    guest_name: string;
+    table_name: string | null;
+    table_code: string | null;
+    seat_code: string | null;
+    seat_number: string | null;
+    original_text: string | null;
+  }): Promise<Guest> {
+    this.ensureConfigured();
+
+    const { data, error } = await this.getClient()
+      .from(this.tableName)
+      .insert({
+        guest_name: input.guest_name,
+        table_name: input.table_name,
+        table_code: input.table_code,
+        seat_code: input.seat_code,
+        seat_number: input.seat_number,
+        original_text: input.original_text
+      })
+      .select('id, guest_name, table_code, seat_code, seat_number, original_text, table_name')
+      .single();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return data as Guest;
+  }
+
+  async updateGuest(
+    id: string,
+    input: {
+      guest_name: string;
+      table_name: string | null;
+      table_code: string | null;
+      seat_code: string | null;
+      seat_number: string | null;
+      original_text: string | null;
+    }
+  ): Promise<Guest> {
+    this.ensureConfigured();
+
+    const { data, error } = await this.getClient()
+      .from(this.tableName)
+      .update({
+        guest_name: input.guest_name,
+        table_name: input.table_name,
+        table_code: input.table_code,
+        seat_code: input.seat_code,
+        seat_number: input.seat_number,
+        original_text: input.original_text
+      })
+      .eq('id', id)
+      .select('id, guest_name, table_code, seat_code, seat_number, original_text, table_name')
+      .single();
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    return data as Guest;
+  }
+
+  async deleteGuest(id: string): Promise<void> {
+    this.ensureConfigured();
+
+    const { error } = await this.getClient()
+      .from(this.tableName)
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+  }
+
   async searchGuestsByName(name: string): Promise<Guest[]> {
     this.ensureConfigured();
 
@@ -20,9 +97,9 @@ export class GuestService {
 
     const { data, error } = await this.getClient()
       .from(this.tableName)
-      .select('id, full_name, table_name, seat_label, party_size, checked_in, checked_in_at')
-      .ilike('full_name', `%${query}%`)
-      .order('full_name', { ascending: true })
+      .select('id, guest_name, table_code, seat_code, seat_number, original_text, table_name')
+      .ilike('guest_name', `%${query}%`)
+      .order('guest_name', { ascending: true })
       .limit(30);
 
     if (error) {
@@ -37,7 +114,7 @@ export class GuestService {
 
     const { data, error } = await this.getClient()
       .from(this.tableName)
-      .select('id, full_name, table_name, seat_label, party_size, checked_in, checked_in_at')
+      .select('id, guest_name, table_code, seat_code, seat_number, original_text, table_name')
       .eq('id', id)
       .maybeSingle();
 
@@ -48,39 +125,18 @@ export class GuestService {
     return (data as Guest | null) ?? null;
   }
 
-  async checkInGuest(id: string): Promise<Guest> {
-    this.ensureConfigured();
-
-    const { data, error } = await this.getClient()
-      .from(this.tableName)
-      .update({
-        checked_in: true,
-        checked_in_at: new Date().toISOString()
-      })
-      .eq('id', id)
-      .select('id, full_name, table_name, seat_label, party_size, checked_in, checked_in_at')
-      .single();
-
-    if (error) {
-      throw new Error(error.message);
-    }
-
-    return data as Guest;
-  }
-
   async getGuestsForAdmin(name: string): Promise<Guest[]> {
     this.ensureConfigured();
 
     let query = this.getClient()
       .from(this.tableName)
-      .select('id, full_name, table_name, seat_label, party_size, checked_in, checked_in_at')
-      .order('checked_in', { ascending: true })
-      .order('full_name', { ascending: true })
+      .select('id, guest_name, table_code, seat_code, seat_number, original_text, table_name')
+      .order('guest_name', { ascending: true })
       .limit(200);
 
     const term = name.trim();
     if (term) {
-      query = query.ilike('full_name', `%${term}%`);
+      query = query.ilike('guest_name', `%${term}%`);
     }
 
     const { data, error } = await query;

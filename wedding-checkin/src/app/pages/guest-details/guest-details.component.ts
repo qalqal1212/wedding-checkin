@@ -14,7 +14,6 @@ import { GuestService } from '../../services/guest.service';
 export class GuestDetailsComponent {
   guest: Guest | null = null;
   loading = true;
-  checkingIn = false;
   errorMessage = '';
 
   constructor(
@@ -44,23 +43,6 @@ export class GuestDetailsComponent {
       this.errorMessage = this.getErrorMessage(error, 'Unable to load guest details right now.');
     } finally {
       this.loading = false;
-    }
-  }
-
-  async checkInNow(): Promise<void> {
-    if (!this.guest) {
-      return;
-    }
-
-    this.checkingIn = true;
-    this.errorMessage = '';
-
-    try {
-      this.guest = await this.guestService.checkInGuest(this.guest.id);
-    } catch (error) {
-      this.errorMessage = this.getErrorMessage(error, 'Unable to check in this guest right now.');
-    } finally {
-      this.checkingIn = false;
     }
   }
 

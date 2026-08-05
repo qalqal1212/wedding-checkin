@@ -28,18 +28,68 @@
         <p>{{ guests.length }}</p>
       </article>
       <article class="card stat-card">
-        <h2>Checked In</h2>
-        <p>{{ checkedInCount }}</p>
+        <h2>With Table</h2>
+        <p>{{ withTableCount }}</p>
       </article>
       <article class="card stat-card">
-        <h2>Pending</h2>
-        <p>{{ pendingCount }}</p>
+        <h2>With Seat Number</h2>
+        <p>{{ withSeatNumberCount }}</p>
       </article>
     </div>
 
     @if (errorMessage) {
       <p class="error">{{ errorMessage }}</p>
     }
+  </section>
+
+  <section class="card crud-card">
+    <div class="table-head">
+      <h2>{{ isEditing ? 'Edit Guest' : 'Add New Guest' }}</h2>
+      @if (isEditing) {
+        <button class="btn-secondary" type="button" (click)="cancelEdit()">Cancel Edit</button>
+      }
+    </div>
+
+    <form class="crud-form" [formGroup]="guestForm" (ngSubmit)="saveGuest()">
+      <label>
+        Guest Name
+        <input type="text" formControlName="guest_name" placeholder="Full name" />
+      </label>
+
+      <label>
+        Table
+        <input type="text" formControlName="table_name" placeholder="e.g. Jasmine 1" />
+      </label>
+
+      <label>
+        Table Code
+        <input type="text" formControlName="table_code" placeholder="e.g. T1" />
+      </label>
+
+      <label>
+        Seat Code
+        <input type="text" formControlName="seat_code" placeholder="e.g. A" />
+      </label>
+
+      <label>
+        Seat Number
+        <input type="text" formControlName="seat_number" placeholder="e.g. 12" />
+      </label>
+
+      <label>
+        Original Text
+        <input type="text" formControlName="original_text" placeholder="Optional source text" />
+      </label>
+
+      <div class="crud-actions">
+        <button class="btn-primary" type="submit" [disabled]="saving">
+          {{ saving ? 'Saving...' : (isEditing ? 'Update Guest' : 'Create Guest') }}
+        </button>
+        <button class="btn-secondary" type="button" (click)="startCreateGuest()" [disabled]="saving">
+          Clear
+        </button>
+      </div>
+    </form>
   </section>
 
   <section class="card table-card">
@@ -54,23 +104,35 @@
           <tr>
             <th>Name</th>
             <th>Table</th>
-            <th>Seat</th>
-            <th>Status</th>
-            <th>Checked In At</th>
+            <th>Table Code</th>
+            <th>Seat Code</th>
+            <th>Seat Number</th>
+            <th>Original Text</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
           @for (guest of guests; track trackByGuest($index, guest)) {
             <tr>
-              <td>{{ guest.full_name }}</td>
+              <td>{{ guest.guest_name }}</td>
               <td>{{ guest.table_name || '-' }}</td>
-              <td>{{ guest.seat_label || '-' }}</td>
+              <td>{{ guest.table_code || '-' }}</td>
+              <td>{{ guest.seat_code || '-' }}</td>
+              <td>{{ guest.seat_number || '-' }}</td>
+              <td>{{ guest.original_text || '-' }}</td>
               <td>
-                <span class="status-chip" [class.checked]="guest.checked_in" [class.pending]="!guest.checked_in">
-                  {{ guest.checked_in ? 'Checked In' : 'Pending' }}
-                </span>
+                <div class="row-actions">
+                  <button class="btn-secondary" type="button" (click)="startEditGuest(guest)">Edit</button>
+                  <button
+                    class="btn-danger"
+                    type="button"
+                    [disabled]="deletingGuestId === guest.id"
+                    (click)="deleteGuest(guest)"
+                  >
+                    {{ deletingGuestId === guest.id ? 'Deleting...' : 'Delete' }}
+                  </button>
+                </div>
               </td>
-              <td>{{ guest.checked_in_at ? (guest.checked_in_at | date: 'short') : '-' }}</td>
             </tr>
           }
         </tbody>

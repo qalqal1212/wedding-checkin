@@ -17,7 +17,6 @@ export class HomeComponent {
 
   guests: Guest[] = [];
   loading = false;
-  checkingInGuestId: string | null = null;
   searched = false;
   errorMessage = '';
 
@@ -42,22 +41,7 @@ export class HomeComponent {
   }
 
   async onGuestAction(guest: Guest): Promise<void> {
-    if (guest.checked_in) {
-      await this.router.navigate(['/guest', guest.id]);
-      return;
-    }
-
-    this.errorMessage = '';
-    this.checkingInGuestId = guest.id;
-
-    try {
-      await this.guestService.checkInGuest(guest.id);
-      await this.router.navigate(['/guest', guest.id]);
-    } catch (error) {
-      this.errorMessage = this.getErrorMessage(error, 'Unable to complete check-in right now.');
-    } finally {
-      this.checkingInGuestId = null;
-    }
+    await this.router.navigate(['/guest', guest.id]);
   }
 
   trackByGuest(_: number, guest: Guest): string {

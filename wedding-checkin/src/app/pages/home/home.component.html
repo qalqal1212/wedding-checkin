@@ -41,30 +41,17 @@
       @for (guest of guests; track trackByGuest($index, guest)) {
         <article class="card guest-card">
           <div class="guest-header">
-            <h2>{{ guest.full_name }}</h2>
-            <span class="status-chip" [class.checked]="guest.checked_in" [class.pending]="!guest.checked_in">
-              {{ guest.checked_in ? 'Checked In' : 'Pending' }}
-            </span>
+            <h2>{{ guest.guest_name }}</h2>
           </div>
 
           <div class="guest-meta">
             <p><strong>Table:</strong> {{ guest.table_name || 'Will be assigned at venue' }}</p>
-            <p><strong>Seat:</strong> {{ guest.seat_label || 'TBD' }}</p>
-            <p><strong>Party Size:</strong> {{ guest.party_size || 1 }}</p>
+            <p><strong>Table Code:</strong> {{ guest.table_code || '-' }}</p>
+            <p><strong>Seat Code:</strong> {{ guest.seat_code || '-' }}</p>
+            <p><strong>Seat Number:</strong> {{ guest.seat_number || '-' }}</p>
           </div>
 
-          <button
-            class="btn-primary"
-            type="button"
-            [disabled]="checkingInGuestId === guest.id"
-            (click)="onGuestAction(guest)"
-          >
-            @if (checkingInGuestId === guest.id) {
-              Processing...
-            } @else {
-              {{ guest.checked_in ? 'View Details' : 'Check In Now' }}
-            }
-          </button>
+          <button class="btn-primary" type="button" (click)="onGuestAction(guest)">View Details</button>
         </article>
       }
     </section>
