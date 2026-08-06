@@ -1,57 +1,57 @@
-<div class="page-wrap">
-  <header class="top-nav">
-    <div class="brand">Wedding Check-In</div>
-    <nav class="nav-links">
-      <a class="link-chip" routerLink="/">Guest Search</a>
-      <a class="link-chip" routerLink="/admin">Admin Dashboard</a>
+<div class="app-shell guest-details">
+  <header class="app-header guest-details__header">
+    <div class="app-header__brand">N and H Wedding</div>
+    <nav class="app-header__actions">
+      <a class="app-link-pill" routerLink="/">Guest Search</a>
+      <a class="app-link-pill" routerLink="/admin">Admin Dashboard</a>
     </nav>
   </header>
 
   @if (loading) {
-    <section class="hero-card">
-      <h1 class="section-title">Loading guest details...</h1>
+    <section class="app-panel app-panel--hero guest-details__state">
+      <h1 class="app-title">Loading guest details...</h1>
     </section>
   } @else if (errorMessage) {
-    <section class="hero-card">
-      <h1 class="section-title">Unable to show details</h1>
-      <p class="error">{{ errorMessage }}</p>
-      <button class="btn-secondary" type="button" (click)="loadGuest()">Try Again</button>
+    <section class="app-panel app-panel--hero guest-details__state">
+      <h1 class="app-title">Unable to show details</h1>
+      <p class="app-error">{{ errorMessage }}</p>
+      <button class="app-button app-button--secondary" type="button" (click)="loadGuest()">Try Again</button>
     </section>
   } @else if (guest) {
-    <section class="hero-card details-card">
-      <div class="details-title-row">
-        <h1 class="section-title">{{ guest.guest_name }}</h1>
+    <section class="app-panel app-panel--hero guest-details__card">
+      <div class="guest-details__title-row">
+        <h1 class="app-title">{{ guest.guest_name }}</h1>
       </div>
 
-      <div class="grid">
-        <article class="card slot">
-          <h2>Table</h2>
-          <p>{{ guest.table_name || 'Will be assigned at venue' }}</p>
+      <div class="guest-details__grid">
+        <article class="guest-details__slot">
+          <h2 class="guest-details__slot-title">Table</h2>
+          <p class="guest-details__slot-value">{{ guest.table_name || 'Will be assigned at venue' }}</p>
         </article>
 
-        <article class="card slot">
-          <h2>Table Code</h2>
-          <p>{{ guest.table_code || '-' }}</p>
+        <article class="guest-details__slot">
+          <h2 class="guest-details__slot-title">Table Code</h2>
+          <p class="guest-details__slot-value">{{ guest.table_code || '-' }}</p>
         </article>
 
-        <article class="card slot">
-          <h2>Seat Code</h2>
-          <p>{{ guest.seat_code || '-' }}</p>
+        <article class="guest-details__slot">
+          <h2 class="guest-details__slot-title">Seat Code</h2>
+          <p class="guest-details__slot-value">{{ guest.seat_code || '-' }}</p>
         </article>
 
-        <article class="card slot">
-          <h2>Seat Number</h2>
-          <p>{{ guest.seat_number || '-' }}</p>
+        <article class="guest-details__slot">
+          <h2 class="guest-details__slot-title">Seat Number</h2>
+          <p class="guest-details__slot-value">{{ guest.seat_number || '-' }}</p>
         </article>
       </div>
 
       @if (errorMessage) {
-        <p class="error">{{ errorMessage }}</p>
+        <p class="app-error">{{ errorMessage }}</p>
       }
 
-      <article class="card slot">
-        <h2>Original Text</h2>
-        <p>{{ guest.original_text || '-' }}</p>
+      <article class="guest-details__slot guest-details__slot--full">
+        <h2 class="guest-details__slot-title">Original Text</h2>
+        <p class="guest-details__slot-value">{{ guest.original_text || '-' }}</p>
       </article>
     </section>
   }
