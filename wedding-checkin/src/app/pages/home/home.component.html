@@ -1,101 +1,89 @@
-<div class="page-wrap">
-  <header class="top-nav">
-    <div class="brand">Wedding Check-In</div>
-    <nav class="nav-links">
-      <a class="link-chip" routerLink="/admin">Admin Dashboard</a>
-    </nav>
-  </header>
+<div class="guest-home">
+  <div class="guest-home__frame">
+    <header class="guest-home__hero">
+      <!-- <div class="guest-home__monogram">N | H</div> -->
+      <!-- <p class="guest-home__welcome">Welcome to our wedding</p>
+      <h1 class="guest-home__couple">Nadia and Haikal</h1>
+      <p class="guest-home__date">27 July 2025</p> -->
+    </header>
 
-  <section class="hero-card guest-search">
-    <h1 class="section-title guest-search__title">Find your name to check in</h1>
-    <p class="section-subtitle guest-search__subtitle">
-      QR opens this page only. Search your name here, select your record, then confirm check-in.
-    </p>
+    <section class="guest-home__search-card">
+      <h2 class="guest-home__search-title">Find your seat</h2>
+      <p class="guest-home__search-copy">Please enter your name to find your seat.</p>
 
-    <form class="guest-search__form" (submit)="$event.preventDefault(); searchGuests()">
-      <label class="guest-search__label" for="guest-search-input">Guest Search</label>
-      <div class="guest-search__row">
-        <input
-          id="guest-search-input"
-          class="guest-search__input"
-          type="text"
-          [formControl]="nameControl"
-          placeholder="Enter your name, table, or seat code"
-          aria-label="Search your guest name"
-        />
-        <button class="btn-primary guest-search__button" type="submit" [disabled]="loading">
-          {{ loading ? 'Searching...' : 'Search Guest' }}
-        </button>
-      </div>
-    </form>
+      <form class="guest-home__form" (submit)="$event.preventDefault(); searchGuests()">
+        <label class="guest-home__input-wrap" for="guest-search-input">
+          <span class="guest-home__input-icon" aria-hidden="true"></span>
+          <input
+            id="guest-search-input"
+            class="guest-home__input"
+            type="text"
+            [formControl]="nameControl"
+            (input)="onNameInputChange()"
+            placeholder="Type your name"
+            aria-label="Search your guest name"
+          />
+          @if (hasSearchTerm) {
+            <button class="guest-home__clear" type="button" (click)="clearSearch()" aria-label="Clear search"></button>
+          }
+          <button class="guest-home__submit" type="submit" [disabled]="loading" aria-label="Search guest"></button>
+        </label>
+      </form>
 
-    @if (searched) {
-      <div class="guest-search__popup" role="listbox" aria-label="Matching guests">
-        @if (!loading && guests.length === 0) {
-          <article class="guest-search__empty">
-            <h2 class="guest-search__empty-title">Guest not found</h2>
-            <p class="guest-search__empty-text">Check the spelling or ask staff to help.</p>
-          </article>
-        }
+      @if (searched) {
+        <div class="guest-home__results" role="listbox" aria-label="Matching guests">
+          @if (!loading && guests.length === 0) {
+            <article class="guest-home__empty">
+              <h3 class="guest-home__empty-title">Not found</h3>
+              <p class="guest-home__empty-text">Please check the spelling or try another name.</p>
+            </article>
+          }
 
-        @for (guest of guests; track trackByGuest($index, guest)) {
-          <button
-            class="guest-search__result"
-            type="button"
-            (click)="selectGuest(guest)"
-            [class.guest-search__result--active]="selectedGuest?.id === guest.id"
-          >
-            <span class="guest-search__result-name">{{ guest.guest_name }}</span>
-            <span class="guest-search__result-meta">{{ guest.table_name || 'Table pending' }}</span>
-          </button>
-        }
-      </div>
-    }
-
-    @if (errorMessage) {
-      <p class="error guest-search__error">{{ errorMessage }}</p>
-    }
-  </section>
-
-  @if (selectedGuest) {
-    <section class="card guest-checkin" [class.guest-checkin--done]="selectedGuest.checked_in">
-      <header class="guest-checkin__header">
-        <h2 class="guest-checkin__name">{{ selectedGuest.guest_name }}</h2>
-        <span class="status-chip" [class.checked]="selectedGuest.checked_in" [class.pending]="!selectedGuest.checked_in">
-          {{ selectedGuest.checked_in ? 'Checked In' : 'Not Checked In' }}
-        </span>
-      </header>
-
-      <div class="guest-checkin__grid">
-        <article class="guest-checkin__item">
-          <p class="guest-checkin__item-label">Table</p>
-          <p class="guest-checkin__item-value">{{ selectedGuest.table_name || 'Will be assigned at venue' }}</p>
-        </article>
-        <article class="guest-checkin__item">
-          <p class="guest-checkin__item-label">Table Code</p>
-          <p class="guest-checkin__item-value">{{ selectedGuest.table_code || '-' }}</p>
-        </article>
-        <article class="guest-checkin__item">
-          <p class="guest-checkin__item-label">Seat Code</p>
-          <p class="guest-checkin__item-value">{{ selectedGuest.seat_code || '-' }}</p>
-        </article>
-        <article class="guest-checkin__item">
-          <p class="guest-checkin__item-label">Seat Number</p>
-          <p class="guest-checkin__item-value">{{ selectedGuest.seat_number || '-' }}</p>
-        </article>
-      </div>
-
-      @if (selectedGuest.checked_in) {
-        <p class="guest-checkin__success">You are already checked in. Enjoy the event.</p>
-      } @else {
-        <button class="btn-primary guest-checkin__confirm" type="button" (click)="confirmCheckIn()" [disabled]="checkingIn">
-          {{ checkingIn ? 'Confirming...' : 'Confirm Check-In' }}
-        </button>
+          @for (guest of guests; track trackByGuest($index, guest)) {
+            <button
+              class="guest-home__result"
+              type="button"
+              (click)="selectGuest(guest)"
+              [class.guest-home__result--active]="selectedGuest?.id === guest.id"
+            >
+              <span class="guest-home__result-name">{{ guest.guest_name }}</span>
+              <span class="guest-home__result-arrow" aria-hidden="true"></span>
+            </button>
+          }
+        </div>
       }
 
-      @if (checkInSuccess) {
-        <p class="guest-checkin__success">Check-in successful. Thank you and have a great time.</p>
+      @if (errorMessage) {
+        <p class="guest-home__error">{{ errorMessage }}</p>
       }
     </section>
-  }
+
+    @if (selectedGuest) {
+      <section class="guest-home__seat-card" [class.guest-home__seat-card--done]="selectedGuest.checked_in">
+        <p class="guest-home__seat-heading">Your seat</p>
+        <h3 class="guest-home__seat-name">Hi {{ selectedGuest.guest_name }}!</h3>
+        <p class="guest-home__seat-copy">Here are your seat details</p>
+
+        <div class="guest-home__seat-panel">
+          <p class="guest-home__seat-label">Table</p>
+          <p class="guest-home__seat-value">{{ selectedGuest.table_code || selectedGuest.table_name || '-' }}</p>
+          <p class="guest-home__seat-label">Seat</p>
+          <p class="guest-home__seat-value">{{ selectedGuest.seat_number || selectedGuest.seat_code || '-' }}</p>
+        </div>
+
+        @if (selectedGuest.checked_in) {
+          <p class="guest-home__success">You are already checked in.</p>
+        } @else {
+          <button class="guest-home__confirm" type="button" (click)="confirmCheckIn()" [disabled]="checkingIn">
+            {{ checkingIn ? 'Confirming...' : 'Yes, this is me' }}
+          </button>
+        }
+
+        @if (checkInSuccess) {
+          <p class="guest-home__success">Check-in successful. Thank you for coming.</p>
+        }
+      </section>
+    }
+  </div>
+
 </div>

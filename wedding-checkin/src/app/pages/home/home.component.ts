@@ -14,6 +14,7 @@ import { GuestService } from '../../services/guest.service';
 })
 export class HomeComponent {
   readonly nameControl = new FormControl('', { nonNullable: true });
+  private lastSearchTerm = '';
 
   guests: Guest[] = [];
   selectedGuest: Guest | null = null;
@@ -26,21 +27,56 @@ export class HomeComponent {
   constructor(private readonly guestService: GuestService) {}
 
   async searchGuests(): Promise<void> {
+    const searchTerm = this.nameControl.value.trim();
+    if (!searchTerm) {
+      this.resetSearchState();
+      return;
+    }
+
+    this.lastSearchTerm = searchTerm;
     this.errorMessage = '';
     this.loading = true;
     this.searched = true;
     this.checkInSuccess = false;
 
     try {
-      this.guests = await this.guestService.searchGuestsByName(this.nameControl.value);
+      const guests = await this.guestService.searchGuestsByName(searchTerm);
+      if (this.lastSearchTerm !== this.nameControl.value.trim()) {
+        return;
+      }
+
+      this.guests = guests;
       this.selectedGuest = null;
     } catch (error) {
+      if (this.lastSearchTerm !== this.nameControl.value.trim()) {
+        return;
+      }
+
       this.errorMessage = this.getErrorMessage(error, 'Unable to search guests right now.');
       this.guests = [];
       this.selectedGuest = null;
     } finally {
-      this.loading = false;
+      if (this.lastSearchTerm === this.nameControl.value.trim()) {
+        this.loading = false;
+      }
     }
+  }
+
+  clearSearch(): void {
+    this.nameControl.setValue('');
+    this.lastSearchTerm = '';
+    this.resetSearchState();
+  }
+
+  onNameInputChange(): void {
+    if (!this.nameControl.value.trim()) {
+      this.lastSearchTerm = '';
+      this.resetSearchState();
+    }
+  }
+
+  get hasSearchTerm(): boolean {
+    return this.nameControl.value.trim().length > 0;
   }
 
   selectGuest(guest: Guest): void {
@@ -71,6 +107,15 @@ export class HomeComponent {
 
   trackByGuest(_: number, guest: Guest): string {
     return guest.id;
+  }
+
+  private resetSearchState(): void {
+    this.guests = [];
+    this.selectedGuest = null;
+    this.searched = false;
+    this.checkInSuccess = false;
+    this.errorMessage = '';
+    this.loading = false;
   }
 
   private getErrorMessage(error: unknown, fallback: string): string {

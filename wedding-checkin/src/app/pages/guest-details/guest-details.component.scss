@@ -1,38 +1,48 @@
-.details-card {
+.guest-details {
   display: grid;
   gap: 1rem;
 }
 
-.details-title-row {
+.guest-details__card {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.guest-details__title-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 0.85rem;
 }
 
-.grid {
+.guest-details__grid {
   display: grid;
-  gap: 0.8rem;
+  gap: 0.68rem;
+  grid-template-columns: 1fr;
 }
 
-.slot {
-  padding: 1rem;
+.guest-details__slot {
+  padding: 0.85rem;
+  border: 1px solid #e3ecff;
+  border-radius: 0.85rem;
+  background: var(--app-surface-alt);
 }
 
-.slot h2 {
-  margin-top: 0;
-  margin-bottom: 0.45rem;
-  color: var(--accent-strong);
-  font-size: 1rem;
-}
-
-.slot p {
+.guest-details__slot-title {
   margin: 0;
-  font-size: 1.05rem;
+  font-family: 'Sora', 'Outfit', sans-serif;
+  color: var(--app-primary-strong);
+  font-size: 0.95rem;
+}
+
+.guest-details__slot-value {
+  margin: 0.35rem 0 0;
+  font-size: 1rem;
+  color: var(--app-text);
 }
 
 @media (min-width: 760px) {
-  .grid {
-    grid-template-columns: repeat(2, 1fr);
+  .guest-details__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

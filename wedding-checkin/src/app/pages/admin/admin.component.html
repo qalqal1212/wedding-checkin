@@ -1,109 +1,109 @@
-<div class="page-wrap">
-  <header class="top-nav">
-    <div class="brand">Wedding Check-In Admin</div>
-    <nav class="nav-links">
-      <a class="link-chip" routerLink="/">Guest Search</a>
-      <button class="link-chip link-btn" type="button" (click)="logoutAdmin()">Logout</button>
+<div class="app-shell admin-dashboard">
+  <header class="app-header admin-dashboard__header">
+    <div class="app-header__brand">Wedding Admin</div>
+    <nav class="app-header__actions">
+      <a class="app-link-pill" routerLink="/">Guest Search</a>
+      <button class="app-link-pill admin-dashboard__logout" type="button" (click)="logoutAdmin()">Logout</button>
     </nav>
   </header>
 
-  <section class="hero-card admin-search">
-    <h1 class="section-title">Guest Check-In Status</h1>
-    <p class="section-subtitle">Manual search by guest name, table name, table code, or seat code.</p>
+  <section class="app-panel app-panel--hero admin-dashboard__search">
+    <h1 class="app-title">Guest Check-In Status</h1>
+    <p class="app-subtitle">Manual search by guest name, table name, table code, or seat code.</p>
 
-    <form class="admin-search__form" (submit)="$event.preventDefault(); loadGuests(true)">
-      <label class="admin-search__label" for="admin-search-input">Search Guest</label>
-      <div class="admin-search__row">
+    <form class="admin-dashboard__search-form" (submit)="$event.preventDefault(); loadGuests(true)">
+      <label class="app-label" for="admin-search-input">Search Guest</label>
+      <div class="admin-dashboard__search-row">
         <input
           id="admin-search-input"
-          class="admin-search__input"
+          class="app-input"
           type="text"
           [formControl]="searchControl"
           placeholder="Search name, table, or seat"
           aria-label="Search guest"
         />
-        <button class="btn-primary" type="submit" [disabled]="loading">
+        <button class="app-button app-button--primary" type="submit" [disabled]="loading">
           {{ loading ? 'Loading...' : 'Search' }}
         </button>
-        <button class="btn-secondary" type="button" (click)="clearSearch()" [disabled]="loading || !hasSearchTerm">
+        <button class="app-button app-button--secondary" type="button" (click)="clearSearch()" [disabled]="loading || !hasSearchTerm">
           Clear
         </button>
       </div>
     </form>
 
-    <div class="stats">
-      <article class="card stat-card">
-        <h2>Total</h2>
-        <p>{{ totalGuests }}</p>
+    <div class="admin-dashboard__stats">
+      <article class="admin-dashboard__stat-card">
+        <h2 class="admin-dashboard__stat-title">Total Guests</h2>
+        <p class="admin-dashboard__stat-value">{{ totalGuests }}</p>
       </article>
-      <article class="card stat-card">
-        <h2>Checked In</h2>
-        <p>{{ checkedInCount }}</p>
+      <article class="admin-dashboard__stat-card">
+        <h2 class="admin-dashboard__stat-title">Checked In</h2>
+        <p class="admin-dashboard__stat-value">{{ checkedInCount }}</p>
       </article>
-      <article class="card stat-card">
-        <h2>Pending</h2>
-        <p>{{ pendingCount }}</p>
+      <article class="admin-dashboard__stat-card">
+        <h2 class="admin-dashboard__stat-title">Pending</h2>
+        <p class="admin-dashboard__stat-value">{{ pendingCount }}</p>
       </article>
     </div>
 
     @if (errorMessage) {
-      <p class="error">{{ errorMessage }}</p>
+      <p class="app-error">{{ errorMessage }}</p>
     }
   </section>
 
-  <section class="card crud-card">
-    <div class="table-head">
+  <section class="app-panel admin-dashboard__editor">
+    <div class="admin-dashboard__section-head">
       <h2>{{ isEditing ? 'Edit Guest' : 'Add New Guest' }}</h2>
       @if (isEditing) {
-        <button class="btn-secondary" type="button" (click)="cancelEdit()">Cancel Edit</button>
+        <button class="app-button app-button--secondary" type="button" (click)="cancelEdit()">Cancel Edit</button>
       }
     </div>
 
-    <form class="crud-form" [formGroup]="guestForm" (ngSubmit)="saveGuest()">
-      <label>
+    <form class="admin-dashboard__editor-form" [formGroup]="guestForm" (ngSubmit)="saveGuest()">
+      <label class="admin-dashboard__field">
         Guest Name
-        <input type="text" formControlName="guest_name" placeholder="Full name" />
+        <input class="app-input" type="text" formControlName="guest_name" placeholder="Full name" />
       </label>
 
-      <label>
+      <label class="admin-dashboard__field">
         Table
-        <input type="text" formControlName="table_name" placeholder="e.g. Jasmine 1" />
+        <input class="app-input" type="text" formControlName="table_name" placeholder="e.g. Jasmine 1" />
       </label>
 
-      <label>
+      <label class="admin-dashboard__field">
         Table Code
-        <input type="text" formControlName="table_code" placeholder="e.g. T1" />
+        <input class="app-input" type="text" formControlName="table_code" placeholder="e.g. T1" />
       </label>
 
-      <label>
+      <label class="admin-dashboard__field">
         Seat Code
-        <input type="text" formControlName="seat_code" placeholder="e.g. A" />
+        <input class="app-input" type="text" formControlName="seat_code" placeholder="e.g. A" />
       </label>
 
-      <label>
+      <label class="admin-dashboard__field">
         Seat Number
-        <input type="text" formControlName="seat_number" placeholder="e.g. 12" />
+        <input class="app-input" type="text" formControlName="seat_number" placeholder="e.g. 12" />
       </label>
 
-      <div class="crud-actions">
-        <button class="btn-primary" type="submit" [disabled]="saving">
+      <div class="admin-dashboard__editor-actions">
+        <button class="app-button app-button--primary" type="submit" [disabled]="saving">
           {{ saving ? 'Saving...' : (isEditing ? 'Update Guest' : 'Create Guest') }}
         </button>
-        <button class="btn-secondary" type="button" (click)="startCreateGuest()" [disabled]="saving">
+        <button class="app-button app-button--secondary" type="button" (click)="startCreateGuest()" [disabled]="saving">
           Clear
         </button>
       </div>
     </form>
   </section>
 
-  <section class="card table-card">
-    <div class="table-head">
+  <section class="app-panel admin-dashboard__table">
+    <div class="admin-dashboard__section-head">
       <h2>{{ hasSearchTerm ? 'Search Results' : 'Guest List' }}</h2>
-      <button class="btn-secondary" type="button" (click)="loadGuests()" [disabled]="loading">Refresh</button>
+      <button class="app-button app-button--secondary" type="button" (click)="loadGuests()" [disabled]="loading">Refresh</button>
     </div>
 
-    <div class="table-wrap">
-      <table>
+    <div class="admin-dashboard__table-wrap">
+      <table class="admin-dashboard__table-grid">
         <thead>
           <tr>
             <th>Name</th>
@@ -125,16 +125,20 @@
               <td>{{ guest.seat_code || '-' }}</td>
               <td>{{ guest.seat_number || '-' }}</td>
               <td>
-                <span class="status-chip" [class.checked]="guest.checked_in" [class.pending]="!guest.checked_in">
+                <span
+                  class="app-status-pill"
+                  [class.app-status-pill--checked]="guest.checked_in"
+                  [class.app-status-pill--pending]="!guest.checked_in"
+                >
                   {{ guest.checked_in ? 'Checked In' : 'Pending' }}
                 </span>
               </td>
               <td>{{ guest.checked_in_at ? (guest.checked_in_at | date: 'short') : '-' }}</td>
               <td>
-                <div class="row-actions">
-                  <button class="btn-secondary" type="button" (click)="startEditGuest(guest)">Edit</button>
+                <div class="admin-dashboard__row-actions">
+                  <button class="app-button app-button--secondary" type="button" (click)="startEditGuest(guest)">Edit</button>
                   <button
-                    class="btn-secondary"
+                    class="app-button app-button--secondary"
                     type="button"
                     [disabled]="togglingGuestId === guest.id"
                     (click)="toggleCheckIn(guest)"
@@ -142,7 +146,7 @@
                     {{ guest.checked_in ? 'Undo' : 'Check In' }}
                   </button>
                   <button
-                    class="btn-danger"
+                    class="app-button app-button--danger"
                     type="button"
                     [disabled]="deletingGuestId === guest.id"
                     (click)="deleteGuest(guest)"
@@ -157,18 +161,18 @@
       </table>
 
       @if (!loading && guests.length === 0) {
-        <p class="empty-note">
+        <p class="admin-dashboard__empty-note">
           {{ hasSearchTerm ? 'No guests found for this search.' : 'No guests available yet.' }}
         </p>
       }
 
-      <div class="pagination-row">
-        <button class="btn-secondary" type="button" (click)="previousPage()" [disabled]="loading || currentPage <= 1">
+      <div class="admin-dashboard__pagination">
+        <button class="app-button app-button--secondary" type="button" (click)="previousPage()" [disabled]="loading || currentPage <= 1">
           Previous
         </button>
         <p>Page {{ currentPage }} of {{ totalPages }}</p>
         <button
-          class="btn-secondary"
+          class="app-button app-button--secondary"
           type="button"
           (click)="nextPage()"
           [disabled]="loading || currentPage >= totalPages"
