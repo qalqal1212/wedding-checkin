@@ -49,7 +49,7 @@ export class GuestService {
       throw new Error(error.message);
     }
 
-    return data as Guest;
+    return this.normalizeGuest(data as Record<string, unknown>);
   }
 
   async updateGuest(
@@ -83,7 +83,7 @@ export class GuestService {
       throw new Error(error.message);
     }
 
-    return data as Guest;
+    return this.normalizeGuest(data as Record<string, unknown>);
   }
 
   async deleteGuest(id: string): Promise<void> {
@@ -123,7 +123,7 @@ export class GuestService {
       .maybeSingle();
 
     if (!error) {
-      return (data as Guest | null) ?? null;
+      return data ? this.normalizeGuest(data as Record<string, unknown>) : null;
     }
 
     console.error('[GuestService] getGuestById modern failed:', error.message);
@@ -175,7 +175,7 @@ export class GuestService {
       .single();
 
     if (!error) {
-      return data as Guest;
+      return this.normalizeGuest(data as Record<string, unknown>);
     }
 
     console.error('[GuestService] check-in update modern failed:', error.message);
@@ -252,19 +252,23 @@ export class GuestService {
 
   private normalizeGuests(rows: Record<string, unknown>[]): Guest[] {
     return rows
-      .map((row) => ({
-        id: String(row['id'] ?? ''),
-        guest_name: String(row['guest_name'] ?? row['full_name'] ?? ''),
-        table_name: this.toNullableString(row['table_name']),
-        table_code: this.toNullableString(row['table_code']),
-        seat_code: this.toNullableString(row['seat_code'] ?? row['seat_label']),
-        seat_number: this.toNullableString(row['seat_number'] ?? row['party_size']),
-        original_text: this.toNullableString(row['original_text']),
-        checked_in: Boolean(row['checked_in']),
-        checked_in_at: this.toNullableString(row['checked_in_at'])
-      }))
+      .map((row) => this.normalizeGuest(row))
       .filter((guest) => guest.id.length > 0 && guest.guest_name.length > 0)
       .sort((a, b) => a.guest_name.localeCompare(b.guest_name));
+  }
+
+  private normalizeGuest(row: Record<string, unknown>): Guest {
+    return {
+      id: String(row['id'] ?? ''),
+      guest_name: String(row['guest_name'] ?? row['full_name'] ?? ''),
+      table_name: this.toNullableString(row['table_name']),
+      table_code: this.toNullableString(row['table_code']),
+      seat_code: this.toNullableString(row['seat_code'] ?? row['seat_label']),
+      seat_number: this.toSeatNumberString(row['seat_number'] ?? row['party_size']),
+      original_text: this.toNullableString(row['original_text']),
+      checked_in: Boolean(row['checked_in']),
+      checked_in_at: this.toNullableString(row['checked_in_at'])
+    };
   }
 
   private filterGuests(guests: Guest[], rawTerm: string): Guest[] {
@@ -286,6 +290,20 @@ export class GuestService {
 
     const text = String(value).trim();
     return text.length > 0 ? text : null;
+  }
+
+  private toSeatNumberString(value: unknown): string | null {
+    const text = this.toNullableString(value);
+    if (!text) {
+      return null;
+    }
+
+    const numericValue = Number(text);
+    if (Number.isFinite(numericValue)) {
+      return String(Math.round(numericValue));
+    }
+
+    return text;
   }
 
   private ensureConfigured(): void {

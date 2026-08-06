@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { adminGuard } from './guards/admin.guard';
+import { adminLogoutGuard } from './guards/admin-logout.guard';
 
 export const routes: Routes = [
 	{
@@ -17,6 +18,7 @@ export const routes: Routes = [
 	{
 		path: 'admin',
 		canActivate: [adminGuard],
+		canDeactivate: [adminLogoutGuard],
 		loadComponent: () => import('./pages/admin/admin.component.js').then((m) => m.AdminComponent)
 	},
 	{

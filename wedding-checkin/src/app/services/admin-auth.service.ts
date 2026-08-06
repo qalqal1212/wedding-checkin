@@ -64,7 +64,7 @@ export class AdminAuthService {
     if (!this.client) {
       this.client = createClient(environment.supabaseUrl, environment.supabaseAnonKey, {
         auth: {
-          persistSession: true,
+          persistSession: false,
           autoRefreshToken: true
         }
       });
